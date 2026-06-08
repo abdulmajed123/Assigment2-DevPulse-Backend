@@ -3,17 +3,13 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import { Pool, pool } from "pg";
+import { Pool } from "pg";
 const app: Application = express();
 const port = 5000;
 
 app.use(express.json());
 
-const pool = new Pool({
-  connectionString:
-    "postgresql://neondb_owner:npg_htkMjJlH9PL8@ep-old-shape-apuwcou8-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
-});
-
+initDB();
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
     message: "Assignment Project",
