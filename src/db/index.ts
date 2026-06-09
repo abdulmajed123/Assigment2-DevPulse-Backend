@@ -1,8 +1,8 @@
 import { Pool } from "pg";
+import config from "../config";
 
 export const pool = new Pool({
-  connectionString:
-    "postgresql://neondb_owner:npg_htkMjJlH9PL8@ep-old-shape-apuwcou8-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+  connectionString: config.connection_string,
 });
 
 export const initDB = async () => {
@@ -18,6 +18,20 @@ export const initDB = async () => {
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
       `);
+
+    await pool.query(`
+    CREATE TABLE IF NOT EXISTS issues (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    type VARCHAR(50) NOT NULL CHECK (type IN ('bug', 'feature')),
+    status VARCHAR(50) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved')),
+    assignee_id INT REFERENCES users(id) ON DELETE SET NULL,
+    creator_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+`);
     console.log("Database Connected Successfully");
   } catch (error) {}
 };

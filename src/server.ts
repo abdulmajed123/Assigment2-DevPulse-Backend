@@ -1,31 +1,12 @@
-import express, {
-  type Application,
-  type Request,
-  type Response,
-} from "express";
-import { Pool } from "pg";
-const app: Application = express();
-const port = 5000;
+import app from "./app";
+import config from "./config";
+import { initDB } from "./db";
 
-app.use(express.json());
-
-initDB();
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({
-    message: "Assignment Project",
-    author: "Abdul Majed",
+const main = () => {
+  initDB();
+  app.listen(config.port, () => {
+    console.log(`Example app listening on port ${config.port}`);
   });
-});
+};
 
-app.post("/", (req: Request, res: Response) => {
-  // console.log(req.body);
-  const { name, email, password } = req.body;
-  res.status(201).json({
-    message: "User Create Successfully",
-    data: { name, email },
-  });
-});
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+main();
