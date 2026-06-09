@@ -19,19 +19,32 @@ export const initDB = async () => {
       )
       `);
 
+    //     await pool.query(`
+    //     CREATE TABLE IF NOT EXISTS issues (
+    //     id SERIAL PRIMARY KEY,
+    //     title VARCHAR(255) NOT NULL,
+    //     description TEXT NOT NULL,
+    //     type VARCHAR(50) NOT NULL CHECK (type IN ('bug', 'feature')),
+    //     status VARCHAR(50) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved')),
+    //     assignee_id INT REFERENCES users(id) ON DELETE SET NULL,
+    //     creator_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    //     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    //   );
+    // `);
+
     await pool.query(`
-    CREATE TABLE IF NOT EXISTS issues (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    type VARCHAR(50) NOT NULL CHECK (type IN ('bug', 'feature')),
-    status VARCHAR(50) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved')),
-    assignee_id INT REFERENCES users(id) ON DELETE SET NULL,
-    creator_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
-`);
+      CREATE TABLE IF NOT EXISTS issues (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(150) NOT NULL, -- রিকোয়ারমেন্টে সর্বোচ্চ 150 ক্যারেক্টার বলা আছে
+        description TEXT NOT NULL,
+        type VARCHAR(50) NOT NULL CHECK (type IN ('bug', 'feature_request')), -- রিকোয়ারমেন্টে feature_request বলা আছে
+        status VARCHAR(50) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved')),
+        reporter_id INT NOT NULL, -- রিকোয়ারমেন্টের রুল: (no foreign key constraint required; validate in application logic)
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
     console.log("Database Connected Successfully");
   } catch (error) {}
 };

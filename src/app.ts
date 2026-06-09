@@ -3,12 +3,16 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import { pool } from "./db";
 import { authRoute } from "./modules/auth/auth.route";
+import { IssueRoutes } from "./modules/issues/issues.route";
 
 const app: Application = express();
 
 app.use(express.json());
+app.use((req, res, next) => {
+  console.log("Time:", Date.now());
+  next();
+});
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
@@ -18,5 +22,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRoute);
+app.use("/api/issues", IssueRoutes);
 
 export default app;
