@@ -5,6 +5,7 @@ import express, {
 } from "express";
 import { authRoute } from "./modules/auth/auth.route";
 import { IssueRoutes } from "./modules/issues/issues.route";
+import globalErrorHandler from "./middlewares/globalErrorHandler";
 
 const app: Application = express();
 
@@ -25,13 +26,5 @@ app.use("/api/auth", authRoute);
 app.use("/api/issues", IssueRoutes);
 
 // Global Error Handling Middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack); // Log the error
-
-  res.status(500).json({
-    success: false,
-    message: err.message || "Internal Server Error",
-  });
-});
-
+app.use(globalErrorHandler);
 export default app;
