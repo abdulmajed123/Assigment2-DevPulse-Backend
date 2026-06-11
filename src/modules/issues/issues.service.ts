@@ -53,14 +53,12 @@ export const getAllIssuesFromDB = async (filters: any) => {
 
   if (issues.length === 0) return [];
 
-  // 💡 NO JOIN: ইউনিক reporter_id বের করে আলাদা কুয়েরি করা
   const reporterIds = [...new Set(issues.map((issue) => issue.reporter_id))];
 
   const userQuery = `SELECT id, name, role FROM users WHERE id IN (${reporterIds.map((_, i) => `$${i + 1}`).join(",")})`;
   const userResult = await pool.query(userQuery, reporterIds);
   const users = userResult.rows;
 
-  // জাভাস্ক্রিপ্ট দিয়ে ডাটা কম্বাইন করা
   return issues.map((issue) => {
     const reporter = users.find((u) => u.id === issue.reporter_id);
     const { reporter_id, ...issueData } = issue;
@@ -93,13 +91,11 @@ export const getSingleIssueFromDB = async (id: number) => {
   };
 };
 
-// 🔐 পারমিশন চেকিংয়ের জন্য র-ইস্যু খোঁজার হেল্পার
 export const findIssueByIdRaw = async (id: number) => {
   const result = await pool.query("SELECT * FROM issues WHERE id = $1", [id]);
   return result.rows[0];
 };
 
-// 🔹 ৬. Update Issue
 export const updateIssueInDB = async (id: number, updateData: any) => {
   const { title, description, type } = updateData;
   const query = `

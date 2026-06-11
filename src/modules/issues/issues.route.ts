@@ -11,11 +11,9 @@ import {
 
 const router = express.Router();
 
-// 🔹 Public Endpoints (যে কেউ দেখতে পারবে)
 router.get("/", getAllIssues);
 router.get("/:id", getSingleIssue);
 
-// 🔹 Protected Endpoints (লগইন করা ইউজার লাগবে এবং রোল চেক হবে)
 router.post(
   "/",
   authMiddleware,
