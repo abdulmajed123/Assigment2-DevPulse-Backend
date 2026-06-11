@@ -1,6 +1,6 @@
 import { pool } from "../../db";
 
-// 🔹 ৩. Create Issue
+//  Create Issue
 export const createIssueInDB = async (
   issueData: { title: string; description: string; type: string },
   reporterId: number,
@@ -22,7 +22,7 @@ export const createIssueInDB = async (
   return result.rows[0];
 };
 
-// 🔹 ৪. Get All Issues (No JOIN Challenge)
+// Get All Issues (No JOIN Challenge)
 export const getAllIssuesFromDB = async (filters: any) => {
   const { sort, type, status } = filters;
 
@@ -69,7 +69,7 @@ export const getAllIssuesFromDB = async (filters: any) => {
   });
 };
 
-// 🔹 ৫. Get Single Issue
+//  Get Single Issue
 export const getSingleIssueFromDB = async (id: number) => {
   const issueResult = await pool.query("SELECT * FROM issues WHERE id = $1", [
     id,
@@ -108,7 +108,7 @@ export const updateIssueInDB = async (id: number, updateData: any) => {
   return result.rows[0];
 };
 
-// 🔹 ৭. Delete Issue
+//  Delete Issue
 export const deleteIssueFromDB = async (id: number) => {
   await pool.query("DELETE FROM issues WHERE id = $1", [id]);
 };

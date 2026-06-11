@@ -1,4 +1,4 @@
-import type { Response } from "express";
+import type { NextFunction, Response } from "express";
 import type { AuthRequest } from "../../middlewares/auth.middleware";
 import {
   createIssueInDB,
@@ -8,94 +8,109 @@ import {
   updateIssueInDB,
   deleteIssueFromDB,
 } from "./issues.service";
+import sendResponse from "../../utility/sendResponse";
 
 // Create Issue
-export const createIssue = async (req: AuthRequest, res: Response) => {
+export const createIssue = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const reporterId = req.user!.id;
     const result = await createIssueInDB(req.body, reporterId);
 
-    res.status(201).json({
+    sendResponse(res, {
+      statusCode: 201,
       success: true,
       message: "Issue created successfully",
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      errors: error.message,
-    });
+    next(error);
   }
 };
 
 // Get All Issues
-export const getAllIssues = async (req: AuthRequest, res: Response) => {
+export const getAllIssues = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const result = await getAllIssuesFromDB(req.query);
-    res.status(200).json({
+
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
-      message: "Issues retrived successfully",
+      message: "Issues retrieved successfully",
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      errors: error.message,
-    });
+    next(error);
   }
 };
 
 // Get Single Issue
-export const getSingleIssue = async (req: AuthRequest, res: Response) => {
+export const getSingleIssue = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
     const result = await getSingleIssueFromDB(id);
 
     if (!result) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Requested resource does not exist" });
+      return sendResponse(res, {
+        statusCode: 404,
+        success: false,
+        message: "Requested resource does not exist",
+      });
     }
 
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
-      message: "Issue retrived successfully",
+      message: "Issues retrieved successfully",
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      errors: error.message,
-    });
+    next(error);
   }
 };
 
 // Update Issue (Strict Permission Checking)
-export const updateIssue = async (req: AuthRequest, res: Response) => {
+export const updateIssue = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
     const user = req.user!;
 
     const existingIssue = await findIssueByIdRaw(id);
     if (!existingIssue) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Requested resource does not exist" });
+      return sendResponse(res, {
+        statusCode: 404,
+        success: false,
+        message: "Requested resource does not exist",
+      });
     }
 
     if (user.role === "contributor") {
       if (existingIssue.reporter_id !== user.id) {
-        return res.status(403).json({
+        return sendResponse(res, {
+          statusCode: 403,
           success: false,
           message: "Valid token but insufficient role/permissions",
         });
       }
 
       if (existingIssue.status !== "open") {
-        return res.status(409).json({
+        return sendResponse(res, {
+          statusCode: 409,
           success: false,
           message: "Business logic conflict (cannot edit non-open issue)",
         });
@@ -103,28 +118,30 @@ export const updateIssue = async (req: AuthRequest, res: Response) => {
     }
 
     const updatedIssue = await updateIssueInDB(id, req.body);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "Issue updated successfully",
       data: updatedIssue,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      errors: error.message,
-    });
+    next(error);
   }
 };
 
 //  Delete Issue
-export const deleteIssue = async (req: AuthRequest, res: Response) => {
+export const deleteIssue = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
     const user = req.user!;
 
     if (user.role !== "maintainer") {
-      return res.status(403).json({
+      return sendResponse(res, {
+        statusCode: 403,
         success: false,
         message: "Valid token but insufficient role/permissions",
       });
@@ -132,21 +149,20 @@ export const deleteIssue = async (req: AuthRequest, res: Response) => {
 
     const existingIssue = await findIssueByIdRaw(id);
     if (!existingIssue) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Requested resource does not exist" });
+      return sendResponse(res, {
+        statusCode: 404,
+        success: false,
+        message: "Requested resource does not exist",
+      });
     }
 
     await deleteIssueFromDB(id);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "Issue deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      errors: error.message,
-    });
+    next(error);
   }
 };
