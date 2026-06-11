@@ -24,4 +24,14 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/auth", authRoute);
 app.use("/api/issues", IssueRoutes);
 
+// Global Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack); // Log the error
+
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
+
 export default app;
