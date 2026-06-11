@@ -1,18 +1,19 @@
 import type { Response } from "express";
 
-type TResponse<T> = {
+export interface TResponse<T> {
   statusCode: number;
   success: boolean;
   message: string;
   data?: T;
-  error?: any;
-};
+  errors?: any;
+}
+
 const sendResponse = <T>(res: Response, data: TResponse<T>) => {
   res.status(data.statusCode).json({
     success: data.success,
     message: data.message,
-    data: data.data,
-    error: data.error,
+    ...(data.data !== undefined && { data: data.data }),
+    ...(data.errors !== undefined && { errors: data.errors }),
   });
 };
 

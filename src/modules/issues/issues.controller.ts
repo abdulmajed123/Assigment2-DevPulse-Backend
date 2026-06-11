@@ -80,7 +80,7 @@ export const getSingleIssue = async (
   }
 };
 
-// Update Issue (Strict Permission Checking)
+// Update Issue
 export const updateIssue = async (
   req: AuthRequest,
   res: Response,

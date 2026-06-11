@@ -22,7 +22,7 @@ export const createIssueInDB = async (
   return result.rows[0];
 };
 
-// Get All Issues (No JOIN Challenge)
+// Get All Issues
 export const getAllIssuesFromDB = async (filters: any) => {
   const { sort, type, status } = filters;
 
@@ -96,18 +96,27 @@ export const findIssueByIdRaw = async (id: number) => {
   return result.rows[0];
 };
 
+// Update Issue
 export const updateIssueInDB = async (id: number, updateData: any) => {
-  const { title, description, type } = updateData;
+  const title = updateData.title !== undefined ? updateData.title : null;
+  const description =
+    updateData.description !== undefined ? updateData.description : null;
+  const type = updateData.type !== undefined ? updateData.type : null;
+
   const query = `
     UPDATE issues 
-    SET title = $1, description = $2, type = $3, updated_at = NOW() 
+    SET 
+      title = COALESCE($1, title),
+      description = COALESCE($2, description),
+      type = COALESCE($3, type),
+      updated_at = NOW() 
     WHERE id = $4
     RETURNING id, title, description, type, status, reporter_id, created_at, updated_at;
   `;
+
   const result = await pool.query(query, [title, description, type, id]);
   return result.rows[0];
 };
-
 //  Delete Issue
 export const deleteIssueFromDB = async (id: number) => {
   await pool.query("DELETE FROM issues WHERE id = $1", [id]);

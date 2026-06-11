@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import config from "../config";
+import sendResponse from "../utility/sendResponse";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -11,16 +12,19 @@ export interface AuthRequest extends Request {
 }
 
 export const authMiddleware = (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
+    return sendResponse(res, {
+      statusCode: 401,
       success: false,
       message: "Missing, expired, or invalid JWT token",
+
+      errors: "Authorization header is missing or improperly formatted",
     });
   }
 
@@ -40,9 +44,14 @@ export const authMiddleware = (
 
     next();
   } catch (error) {
-    return res.status(401).json({
+    return sendResponse(res, {
+      statusCode: 401,
       success: false,
       message: "Missing, expired, or invalid JWT token",
+      errors:
+        error instanceof jwt.TokenExpiredError
+          ? "Token has expired"
+          : "Invalid token",
     });
   }
 };

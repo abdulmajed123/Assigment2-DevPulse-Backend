@@ -1,6 +1,6 @@
 import config from "../../config";
 import { pool } from "../../db";
-import type { IUser } from "./auth.interface";
+import type { ILoginInput, IUser } from "./auth.interface";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -18,7 +18,7 @@ export const craeteUserInDB = async (userData: IUser) => {
 };
 
 // ==== Login User=====
-export const loginUserFromDB = async (loginData: any) => {
+export const loginUserFromDB = async (loginData: ILoginInput) => {
   const { email, password } = loginData;
 
   const query = "SELECT * FROM users WHERE email = $1";
