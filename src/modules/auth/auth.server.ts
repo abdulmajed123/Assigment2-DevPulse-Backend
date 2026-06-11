@@ -41,7 +41,7 @@ export const loginUserFromDB = async (loginData: ILoginInput) => {
   };
 
   const token = jwt.sign(jwtPayload, config.jwt_secret as string, {
-    expiresIn: "7d",
+    expiresIn: config.jwt_expires_in as any,
   });
   const userData = { ...user };
   delete userData.password;
